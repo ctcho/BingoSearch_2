@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+	<style>
+		h1 {
+			font-family: "Verdana", Sans-serif;
+			text-align: center;
+			
+		}
+	
+		table {
+			margin: auto;
+			width: 75%;
+			border: 2px solid black;
+			padding: 5px;
+		}
+		
+		td {
+			font-family: "Verdana", Sans-serif;
+			text-align: center;
+			border: 1px 1px solid black;
+			padding: 2px;
+		}
+		
+		tr {
+			border: 2px solid black;
+			padding: 2px;
+		}
+		
+		div.page {
+			padding: 2em;
+		}
+		
+		div.search-form {
+			margin: auto;
+			width: 20%;
+		}
+		
+		p.description {
+			font-family: "Verdana", Sans-serif;
+			text-align: center;
+		}
+	</style>
+	
+	<head>
+		<meta charset="ISO-8859-1">
+		<title>Wiki Page</title>
+	</head>
+	
+	<body>
+		<!-- <c:out value="${ title }"/> -->
+		<h1>Wiki Page Title</h1>
+		
+		<div class="page">
+			<p>Wiki document ID</p>
+			<p>Wiki document URL</p>
+		</div>
+		
+		<div class="page">
+			<p>Insert doc contents here</p>
+		</div>
+		
+		<br><br>
+		
+		<div class="search-form">
+			<form method="get" action="Search">
+				<input type="hidden" name="terms" value="${ terms }"></input>
+			<button type="submit">Return to Search Results</button>
+		</form>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,45 @@
+#parse("/velocity/home.vm")
+#@mainLayout()
+    <html>
+	<style>
+		h1 {
+			font-family: "Verdana", Sans-serif;
+			text-align: center;
+			
+		}
+		
+		div.search-form {
+			margin: auto;
+			width: 50%;
+		}
+		
+		p.description {
+			font-family: "Verdana", Sans-serif;
+			text-align: center;
+		}
+	</style>
+
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+		<title>Bingo Search</title>
+	</head>
+	
+	<body>
+		<h1>Bingo Search</h1>
+		<br>
+		<br>
+		<div>
+			<p class="description">This miniature app takes in your search terms, parses through them and returns pages
+			from Wikipedia that contain your search terms.</p>
+		</div>
+		<br>
+		<div class="search-form">
+			<form action="Search" method="get">
+				<input type="text" name="terms" size=80 placeholder="Put search terms here..."></input>
+				<button type="submit">Search</button>
+			</form>
+		</div>
+	
+	</body>
+</html>
+#end

@@ -1,0 +1,66 @@
+<html>
+	<style>
+		h1 {
+			font-family: "Verdana", Sans-serif;
+			text-align: center;
+			
+		}
+	
+		table {
+			margin: auto;
+			width: 75%;
+			border: 2px solid black;
+			padding: 5px;
+		}
+		
+		td {
+			font-family: "Verdana", Sans-serif;
+			text-align: center;
+			border: 1px 1px solid black;
+			padding: 2px;
+		}
+		
+		tr {
+			border: 2px solid black;
+			padding: 2px;
+		}
+		
+		div.search-form {
+			margin: auto;
+			width: 50%;
+		}
+		
+		p.description {
+			font-family: "Verdana", Sans-serif;
+			text-align: center;
+		}
+	</style>
+
+	<head>
+		<title>Search Results</title>
+	</head>
+	
+	<body>
+		<h1>The search query "$terms" provided these results:</h1>
+		
+		
+		<table>
+			<thead>
+				<tr>
+					<td>Document ID</td>
+					<td>Document Title</td>
+					<td>Preview</td>
+					<td>Link to Page</td>
+				</tr>
+			</thead>
+			#foreach($document in $documents)
+				<tr>
+					<td>$document.get(0)</td>
+					<td>$document.get(2)</td>
+					<td>$document.get(3)</td>
+					<td>$document.get(1)</td>
+				</tr>
+			#end
+		</table>
+	</body>
+</html>
