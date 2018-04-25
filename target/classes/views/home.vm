@@ -1,6 +1,4 @@
-#parse("/velocity/home.vm")
-#@mainLayout()
-    <html>
+<html>
 	<style>
 		h1 {
 			font-family: "Verdana", Sans-serif;
@@ -16,6 +14,10 @@
 		p.description {
 			font-family: "Verdana", Sans-serif;
 			text-align: center;
+		}
+		
+		body {
+			padding: 1em;
 		}
 	</style>
 
@@ -34,7 +36,7 @@
 		</div>
 		<br>
 		<div class="search-form">
-			<form action="Search" method="get">
+			<form action="/results" method="get">
 				<input type="text" name="terms" size=80 placeholder="Put search terms here..."></input>
 				<button type="submit">Search</button>
 			</form>
@@ -42,4 +44,3 @@
 	
 	</body>
 </html>
-#end

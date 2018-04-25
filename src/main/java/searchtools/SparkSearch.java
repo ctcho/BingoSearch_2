@@ -49,7 +49,7 @@ public class SparkSearch {
     private static JavaRDD<String> evalLoop(String query) throws ScriptException {
     	searchDomain = new ArrayList<String>();
     	translated = "";
-		String[] terms = query.split(" and ");
+    	String[] terms = query.split(" and ");
 		
 		for (int i=0; i < terms.length - 1; i++) {
 			if (terms[i].contains("(")) {
@@ -65,15 +65,17 @@ public class SparkSearch {
 		else {
 			translated += construct(terms[terms.length-1]);
 		}
-//		System.out.println(index.get(searchDomain.get(0)));
-//		System.out.println(searchDomain.size());
-//		System.out.println(searchDomain.get(0));
-		JavaRDD<String> results = spark.read().textFile(index.get(searchDomain.get(0))).toJavaRDD();
-		for (int j = 1; j < searchDomain.size(); j++) {
-			results = results.union(spark.read().textFile(index.get(searchDomain.get(j))).toJavaRDD());
+		if (!searchDomain.isEmpty()) {
+			JavaRDD<String> results = spark.read().textFile(index.get(searchDomain.get(0))).toJavaRDD();
+			for (int j = 1; j < searchDomain.size(); j++) {
+				results = results.union(spark.read().textFile(index.get(searchDomain.get(j))).toJavaRDD());
+			}
+			results = results.filter(s -> evaluate(s, translated));
+			return results;
 		}
-		results = results.filter(s -> evaluate(s, translated));
-		return results;
+		else {
+			return null;
+		}
 	}
     
     private static String construct(String term) throws ScriptException {

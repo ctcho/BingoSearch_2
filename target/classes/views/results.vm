@@ -8,7 +8,7 @@
 	
 		table {
 			margin: auto;
-			width: 75%;
+			width: 85%;
 			border: 2px solid black;
 			padding: 5px;
 		}
@@ -16,23 +16,29 @@
 		td {
 			font-family: "Verdana", Sans-serif;
 			text-align: center;
-			border: 1px 1px solid black;
-			padding: 2px;
+			border: 1px solid black;
+			padding: 10px;
+			margin: 2px;
 		}
 		
 		tr {
 			border: 2px solid black;
-			padding: 2px;
+			margin: 5px;
+			padding: 10px;
 		}
 		
 		div.search-form {
 			margin: auto;
-			width: 50%;
+			width: 55%;
 		}
 		
 		p.description {
 			font-family: "Verdana", Sans-serif;
 			text-align: center;
+		}
+		
+		body {
+			padding: 1em;
 		}
 	</style>
 
@@ -41,26 +47,46 @@
 	</head>
 	
 	<body>
-		<h1>The search query "$terms" provided these results:</h1>
+		<h1>Search Results</h1>
+		<br>
 		
+		#if ($documents.size() > 0)
+			<p>The search query provided these results:</p>
+			
+			<table>
+				<thead>
+					<tr>
+						<td>Document ID</td>
+						<td>Document Title</td>
+						<td>Preview</td>
+						<td>Link to Page</td>
+					</tr>
+				</thead>
+				#foreach($document in $documents)
+					<tr>
+						<td>$document.get(0)</td>
+						<td>$document.get(2)</td>
+						<td>$document.get(3)</td>
+						<td>$document.get(1)</td>
+					</tr>
+				#end
+			</table>
+		#else
+			<div>
+				<p>Your search query did not provide any results...</p>
+			</div>
+		#end
+		<br><br>
+		<div>
+			<p>Want to make another search?</p>
+		</div>
 		
-		<table>
-			<thead>
-				<tr>
-					<td>Document ID</td>
-					<td>Document Title</td>
-					<td>Preview</td>
-					<td>Link to Page</td>
-				</tr>
-			</thead>
-			#foreach($document in $documents)
-				<tr>
-					<td>$document.get(0)</td>
-					<td>$document.get(2)</td>
-					<td>$document.get(3)</td>
-					<td>$document.get(1)</td>
-				</tr>
-			#end
-		</table>
+		<div class="search-form">
+			<form action="/results" method="get">
+				<input type="text" name="terms" size=80 placeholder="Put search terms here..."></input>
+				<button type="submit">Search</button>
+			</form>
+		</div>
+		<br><br>
 	</body>
 </html>
