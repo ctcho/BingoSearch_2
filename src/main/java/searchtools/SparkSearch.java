@@ -23,10 +23,12 @@ public class SparkSearch {
     private static HashMap<String, String> index;
     private static List<String> searchDomain;
     private static String translated;
+    private static int termNo = 0;
     
     public static List<String> makeQuery(String query, String filename, SparkSession spark) throws ScriptException {
     	setup(filename, spark);
     	List<String> results = evalLoop(query).collect();
+    	System.out.println(results);
     	return results;
     }
     
@@ -86,26 +88,29 @@ public class SparkSearch {
 			if (!searchDomain.contains(parts[i].substring(0, 2) + ".txt")) {
 				searchDomain.add(parts[i].substring(0, 2) + ".txt");
 			}
-			String part = "term" + i;
+			String part = "term" + termNo;
 			engine.put(part, parts[i]);
-			if (parts[i].substring(0, 3).equals("not(")) {
-				predicate += "!s.contains(term" + i + ") || ";
+			if (parts[i].substring(0, 4).equals("not(")) {
+				predicate += "!(s === term" + termNo + ") || ";
 			}
 			else {
-				predicate += "s.contains(term" + i + ") || ";
+				predicate += "(s === term" + termNo + ") || ";
 			}
+			termNo++;
+			//System.out.println("Mapping in engine: " + "term" + i + " maps to " + engine.get("term" + i) + " The predicate is: " + predicate);
 		}
 		//The case where length = n
 		if (!searchDomain.contains(parts[parts.length-1].substring(0, 2) + ".txt")) {
 			searchDomain.add(parts[parts.length-1].substring(0, 2) + ".txt");
 		}
-		String part = "term" + (parts.length-1);
+		String part = "term" + termNo;
 		engine.put(part, parts[parts.length-1]);
-		if (parts[parts.length-1].substring(0, 3).equals("not(")) {
-			predicate += "!s.contains(term" + (parts.length-1) + ")";
+		//System.out.println("Mapping in engine: " + "term" + (parts.length-1) + " maps to " + engine.get("term" + (parts.length-1)));
+		if (parts[parts.length-1].substring(0, 4).equals("not(")) {
+			predicate += "!(s === term" + termNo + ")";
 		}
 		else {
-			predicate += "s.contains(term" + (parts.length-1) + ")";
+			predicate += "(s === term" + termNo + ")";
 		}
 		return predicate;
 //		Object result = engine.eval(predicate);
@@ -113,8 +118,12 @@ public class SparkSearch {
 	}
     
 	public static boolean evaluate(String line, String logic) throws ScriptException {
-		engine.put("s", line);
-		return Boolean.TRUE.equals(engine.eval(logic));
+		engine.put("s", line.split(" -> ")[0]);
+		boolean tmp = Boolean.TRUE.equals(engine.eval(logic));
+		if(engine.get("s").toString().equals("vanilla")) System.out.println(tmp);
+		//System.out.println("predicate: " + logic + "the term0 is: " +  engine.get("term0"));
+		//if(tmp) System.out.println(engine.get("s").toString());
+		return tmp;
 	}
 
 }

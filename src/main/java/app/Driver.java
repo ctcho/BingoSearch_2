@@ -5,7 +5,7 @@ import static spark.Spark.*;
 import org.apache.spark.sql.SparkSession;
 //import org.apache.spark.SparkConf;
 //import org.apache.spark.SparkContext;
-import org.apache.velocity.app.Velocity;
+//import org.apache.velocity.app.Velocity;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -20,15 +20,17 @@ import spark.Response;
 import searchtools.*;
 
 
-public class Main {
+public class Driver {
     public static void main(String[] args) {
 //        get("/hello", (req, res) -> "Hello World");
     	//Remember to set master as something else! http://xcn00.cs-i.brandeis.edu[*]
     	//SparkConf conf = new SparkConf().setAppName("Spark Search").setMaster("local[*]")
     	//SparkContext context = new SparkContext(conf);
+    	//local implementation: SparkSession spark = SparkSession.builder()
+    	//.master("local[*]").appName("Spark Search").getOrCreate();
     	
-    	SparkSession spark = SparkSession.builder().master("local[*]").appName("Spark Search").getOrCreate();
-    	Velocity.setProperty("SET_NULL_ALLOWED", true);
+    	SparkSession spark = SparkSession.builder()
+    			.master("local[*]").appName("Spark Search").getOrCreate();
     	
         get("/home", (request, response) -> {
         	Map<String, Object> model = new HashMap<>();
@@ -42,7 +44,7 @@ public class Main {
         get("/results", (request, response) -> {
         	String query = request.queryParams("terms").toLowerCase();
         	
-        	//List<String> results = SparkSearch.makeQuery(query, "/home/cs132g7/index", spark);
+//        	List<String> results = SparkSearch.makeQuery(query, "/home/cs132g7/index", spark);
         	List<String> results = SparkSearch.makeQuery(query, "C:\\Users\\Cameron\\Desktop\\CS132a\\index", spark);
         	
         	List<String> idList = InvertedIndexParser.parse(results);

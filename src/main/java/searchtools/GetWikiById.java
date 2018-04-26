@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.ArrayList;
 
 /*
@@ -34,29 +35,51 @@ with open("/class/cs132/wiki_csv/" + wiki_file) as f:
 
 public class GetWikiById {
 	
+	//Cluster address: "/class/cs132/wiki_csv/"
+	//Local address: "C:\\Users\\Cameron\\Desktop\\CS132a\\wiki\\"
 	public static List<String[]> getDocuments(List<String> ids) {
 		List<String[]> documents = new ArrayList<String[]>();
-		for (String id: ids) {
-			int wiki_id = Integer.parseInt(id);
-			String wiki_file = getWikiFile(wiki_id);
-			try {
-				BufferedReader br = new BufferedReader(new FileReader("/class/cs132/wiki_csv/" + wiki_file));
-				String l = br.readLine();
-		        while (l != null) {
-		        	String[] fields = l.split(",");
-		        	documents.add(fields);
-		        	l = br.readLine();
-		        }
-		        br.close();
-			} catch (Exception e) {
-				e.printStackTrace();
+		if (!ids.isEmpty()) {
+			for (int id=0; id<10; id++) {
+				int wiki_id = Integer.parseInt(ids.get(id));
+				String wiki_file = getWikiFile(wiki_id);
+				try {
+					BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\Cameron\\Desktop\\CS132a\\wiki\\" + wiki_file));
+					String l = br.readLine();
+			        while (l != null) {
+			        	String[] fields = l.split(",");
+			        	if (Integer.parseInt(fields[0]) == wiki_id)  {
+			        		StringTokenizer tokenizer = new StringTokenizer(fields[3]);
+//			        		String[] split = fields[3].split(" ");
+			        		String snippet = "";
+			        		int count =0;
+			        		while(tokenizer.hasMoreTokens() && count < 50) {
+			        			snippet += tokenizer.nextToken() + " ";
+			        			count++;
+			        		}
+			        		
+			        		
+			        		fields[3] = snippet.substring(0, snippet.length()-1) + "...";
+			        		documents.add(fields);
+			        		break;
+			        	}
+			        	
+			        	l = br.readLine();
+			        }
+			        br.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
+		
 		return documents;
 	}
 	
+	//cluster address: "/class/cs132/wiki_ranges.csv"
+	//local address: "C:\\Users\\Cameron\\Desktop\\CS132a\\wiki_ranges.csv"
 	public static String getWikiFile(int wiki_id) {
-		File f = new File("/class/cs132/wiki_ranges.csv");
+		File f = new File("C:\\Users\\Cameron\\Desktop\\CS132a\\wiki_ranges.csv");
 		try {
 			@SuppressWarnings("resource")
 			BufferedReader br = new BufferedReader(new FileReader(f));

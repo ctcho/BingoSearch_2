@@ -67,7 +67,7 @@
 						<td>$document.get(0)</td>
 						<td>$document.get(2)</td>
 						<td>$document.get(3)</td>
-						<td>$document.get(1)</td>
+						<td><a href =$document.get(1)>$document.get(1)</a></td>
 					</tr>
 				#end
 			</table>
