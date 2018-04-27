@@ -142,6 +142,9 @@ public class SparkSearch {
 		//System.out.println("predicate: " + logic + "the term0 is: " +  engine.get("term0"));
 		//if(tmp) System.out.println(engine.get("s").toString());
 //		return tmp;
+		if(term.length() > 4 && term.substring(0, 4).equals("not(")) {
+			return !line.split(" -> ")[0].trim().toLowerCase().equals(term);
+		}
 		return line.split(" -> ")[0].trim().toLowerCase().equals(term);
 	}
 
