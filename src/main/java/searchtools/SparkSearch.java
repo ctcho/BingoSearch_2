@@ -89,7 +89,7 @@ public class SparkSearch {
 		String predicate = "";
 		List<String> filesToRead = new LinkedList<>();
 		if (parts[0].startsWith("(")) parts[0] = parts[0].substring(1, parts[0].length());
-		if (parts[parts.length].endsWith("(")) parts[0] = parts[0].substring(0, parts[0].length() - 1);
+		if (parts[parts.length -1].endsWith(")")) parts[parts.length-1] = parts[parts.length-1].substring(0, parts[parts.length-1].length() - 1);
 		for(int i=0; i<parts.length - 1; i++) {
 			if (!filesToRead.contains(parts[i].substring(0, 2) + ".txt")) {
 				filesToRead.add(parts[i].substring(0, 2) + ".txt");
