@@ -40,7 +40,8 @@ public class GetWikiById {
 	public static List<String[]> getDocuments(List<String> ids) {
 		List<String[]> documents = new ArrayList<String[]>();
 		if (!ids.isEmpty()) {
-			for (int id=0; id<10; id++) {
+			int limit = (ids.size() < 10) ? ids.size() : 10;
+			for (int id=0; id<limit; id++) {
 				int wiki_id = Integer.parseInt(ids.get(id));
 				String wiki_file = getWikiFile(wiki_id);
 				try {
