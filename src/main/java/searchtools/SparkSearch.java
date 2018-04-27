@@ -94,38 +94,38 @@ public class SparkSearch {
 			if (!filesToRead.contains(parts[i].substring(0, 2) + ".txt")) {
 				filesToRead.add(parts[i].substring(0, 2) + ".txt");
 			}
-			String part = "term" + termNo;
-
-			engine.put(part, parts[i]);
-			if (parts[i].substring(0, 4).equals("not(")) {
-				predicate += "!(s === term" + termNo + ") || ";
-			}
-			else {
-				predicate += "(s === term" + termNo + ") || ";
-			}
-			termNo++;
+//			String part = "term" + termNo;
+//
+//			engine.put(part, parts[i]);
+//			if (parts[i].substring(0, 4).equals("not(")) {
+//				predicate += "!(s === term" + termNo + ") || ";
+//			}
+//			else {
+//				predicate += "(s === term" + termNo + ") || ";
+//			}
+//			termNo++;
 			//System.out.println("Mapping in engine: " + "term" + i + " maps to " + engine.get("term" + i) + " The predicate is: " + predicate);
 		}
 		//The case where length = n
 		if (!filesToRead.contains(parts[parts.length-1].substring(0, 2) + ".txt")) {
 			filesToRead.add(parts[parts.length-1].substring(0, 2) + ".txt");
 		}
-		String part = "term" + termNo;
-		engine.put(part, parts[parts.length-1]);
-		//System.out.println("Mapping in engine: " + "term" + (parts.length-1) + " maps to " + engine.get("term" + (parts.length-1)));
-		if (parts[parts.length-1].substring(0, 4).equals("not(")) {
-			predicate += "!(s === term" + termNo + ")";
-		}
-		else {
-			predicate += "(s === term" + termNo + ")";
-		}
-		final String finalPredicate = predicate;
+//		String part = "term" + termNo;
+//		engine.put(part, parts[parts.length-1]);
+//		//System.out.println("Mapping in engine: " + "term" + (parts.length-1) + " maps to " + engine.get("term" + (parts.length-1)));
+//		if (parts[parts.length-1].substring(0, 4).equals("not(")) {
+//			predicate += "!(s === term" + termNo + ")";
+//		}
+//		else {
+//			predicate += "(s === term" + termNo + ")";
+//		}
+//		final String finalPredicate = predicate;
 		if (!filesToRead.isEmpty()) {
-			JavaRDD<String> results = spark.read().textFile(index.get(filesToRead.get(0))).toJavaRDD();
-			for (int j = 1; j < filesToRead.size(); j++) {
-				results = results.union(spark.read().textFile(index.get(filesToRead.get(j))).toJavaRDD());
+			JavaRDD<String> results = spark.read().textFile(index.get(filesToRead.get(0))).toJavaRDD().filter(s -> evaluate(s, parts[0]));
+			for (int j = 1; j < parts.length; j++) {
+				final String partj = parts[j];
+				results = results.union(spark.read().textFile(index.get(filesToRead.get(j))).toJavaRDD().filter(s -> evaluate(s, partj)));
 			}
-			results = results.filter(s -> evaluate(s, finalPredicate));
 			return results;
 		}
 		else {
@@ -135,13 +135,14 @@ public class SparkSearch {
 //		return Boolean.TRUE.equals(result);
 	}
     
-	public static boolean evaluate(String line, String logic) throws ScriptException {
-		engine.put("s", line.split(" -> ")[0]);
-		boolean tmp = Boolean.TRUE.equals(engine.eval(logic));
-		if(engine.get("s").toString().equals("vanilla")) System.out.println(tmp);
+	public static boolean evaluate(String line, String term) throws ScriptException {
+//		engine.put("s", line.split(" -> ")[0]);
+//		boolean tmp = Boolean.TRUE.equals(engine.eval(logic));
+//		if(engine.get("s").toString().equals("vanilla")) System.out.println(tmp);
 		//System.out.println("predicate: " + logic + "the term0 is: " +  engine.get("term0"));
 		//if(tmp) System.out.println(engine.get("s").toString());
-		return tmp;
+//		return tmp;
+		return line.split(" -> ")[0].trim().toLowerCase().equals(term);
 	}
 
 }
