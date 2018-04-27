@@ -13,6 +13,7 @@ import javax.script.ScriptException;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.io.File;
 
 public class SparkSearch {
@@ -21,8 +22,6 @@ public class SparkSearch {
     private static SparkSession spark;
     private static String fileName;
     private static HashMap<String, String> index;
-    private static List<String> searchDomain;
-    private static String translated;
     private static int termNo = 0;
     
     public static List<String> makeQuery(String query, String filename, SparkSession spark) throws ScriptException {
@@ -49,44 +48,49 @@ public class SparkSearch {
     }
     
     private static JavaRDD<String> evalLoop(String query) throws ScriptException {
-    	searchDomain = new ArrayList<String>();
-    	translated = "";
     	String[] terms = query.split(" and ");
-		
-		for (int i=0; i < terms.length - 1; i++) {
-			if (terms[i].contains("(")) {
-	    		translated += construct(terms[i].substring(1, terms[i].length()-1)) + "&&";
-	    	}
-	    	else {
-	    		translated += construct(terms[i]) + "&&";
-	    	}
-		}
-		if (terms[terms.length-1].contains("(")) {
-			translated += construct(terms[terms.length-1].substring(1, terms[terms.length-1].length()-1));
-		}
-		else {
-			translated += construct(terms[terms.length-1]);
-		}
-		if (!searchDomain.isEmpty()) {
-			JavaRDD<String> results = spark.read().textFile(index.get(searchDomain.get(0))).toJavaRDD();
-			for (int j = 1; j < searchDomain.size(); j++) {
-				results = results.union(spark.read().textFile(index.get(searchDomain.get(j))).toJavaRDD());
-			}
-			results = results.filter(s -> evaluate(s, translated));
-			return results;
-		}
-		else {
-			return null;
-		}
+    JavaRDD<String> results = (terms.length > 0) ? subevaluate(terms[0]) : null;
+    	for(int i = 1; i < terms.length; i++) {
+    		results = results.intersection(subevaluate(terms[i]));
+    	}
+    	return results;
+//		
+//		for (int i=0; i < terms.length - 1; i++) {
+//			if (terms[i].contains("(")) {
+//	    		translated += construct(terms[i].substring(1, terms[i].length()-1)) + "&&";
+//	    	}
+//	    	else {
+//	    		translated += construct(terms[i]) + "&&";
+//	    	}
+//		}
+//		if (terms[terms.length-1].contains("(")) {
+//			translated += construct(terms[terms.length-1].substring(1, terms[terms.length-1].length()-1));
+//		}
+//		else {
+//			translated += construct(terms[terms.length-1]);
+//		}
+//		if (!searchDomain.isEmpty()) {
+//			JavaRDD<String> results = spark.read().textFile(index.get(searchDomain.get(0))).toJavaRDD();
+//			for (int j = 1; j < searchDomain.size(); j++) {
+//				results = results.union(spark.read().textFile(index.get(searchDomain.get(j))).toJavaRDD());
+//			}
+//			results = results.filter(s -> evaluate(s, translated));
+//			return results;
+//		}
+//		else {
+//			return null;
+//		}
 	}
     
-    private static String construct(String term) throws ScriptException {
+    
+    private static JavaRDD<String> subevaluate(String term) throws ScriptException {
 //		engine.put("s", s);
 		String[] parts = term.split(" or ");
 		String predicate = "";
+		List<String> filesToRead = new LinkedList<>();
 		for(int i=0; i<parts.length - 1; i++) {
-			if (!searchDomain.contains(parts[i].substring(0, 2) + ".txt")) {
-				searchDomain.add(parts[i].substring(0, 2) + ".txt");
+			if (!filesToRead.contains(parts[i].substring(0, 2) + ".txt")) {
+				filesToRead.add(parts[i].substring(0, 2) + ".txt");
 			}
 			String part = "term" + termNo;
 			engine.put(part, parts[i]);
@@ -100,8 +104,8 @@ public class SparkSearch {
 			//System.out.println("Mapping in engine: " + "term" + i + " maps to " + engine.get("term" + i) + " The predicate is: " + predicate);
 		}
 		//The case where length = n
-		if (!searchDomain.contains(parts[parts.length-1].substring(0, 2) + ".txt")) {
-			searchDomain.add(parts[parts.length-1].substring(0, 2) + ".txt");
+		if (!filesToRead.contains(parts[parts.length-1].substring(0, 2) + ".txt")) {
+			filesToRead.add(parts[parts.length-1].substring(0, 2) + ".txt");
 		}
 		String part = "term" + termNo;
 		engine.put(part, parts[parts.length-1]);
@@ -112,7 +116,18 @@ public class SparkSearch {
 		else {
 			predicate += "(s === term" + termNo + ")";
 		}
-		return predicate;
+		final String finalPredicate = predicate;
+		if (!filesToRead.isEmpty()) {
+			JavaRDD<String> results = spark.read().textFile(index.get(filesToRead.get(0))).toJavaRDD();
+			for (int j = 1; j < filesToRead.size(); j++) {
+				results = results.union(spark.read().textFile(index.get(filesToRead.get(j))).toJavaRDD());
+			}
+			results = results.filter(s -> evaluate(s, finalPredicate));
+			return results;
+		}
+		else {
+			return null;
+		}
 //		Object result = engine.eval(predicate);
 //		return Boolean.TRUE.equals(result);
 	}
