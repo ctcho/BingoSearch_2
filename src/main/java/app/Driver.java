@@ -4,7 +4,6 @@ import static spark.Spark.*;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.sql.SparkSession;
 //import org.apache.spark.SparkConf;
 //import org.apache.spark.SparkContext;
 //import org.apache.velocity.app.Velocity;

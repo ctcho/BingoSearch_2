@@ -2,8 +2,6 @@ package searchtools;
 
 import scala.Tuple2;
 
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Encoders;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -129,6 +127,7 @@ public class SparkSearch {
 				final String partj = parts[j];
 				results = results.union(spark.textFile(index.get(filesToRead.get(j))).filter(s -> evaluate(s, partj)).flatMap(s -> InvertedIndexParser.parse(s).iterator()));
 			}
+			System.out.println("Results are: " + results.collect().toString());
 			return results;
 		}
 		else {
