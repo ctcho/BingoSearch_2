@@ -27,7 +27,7 @@ public class SparkSearch {
     public static List<String> makeQuery(String query, String filename, JavaSparkContext spark) throws ScriptException {
     	setup(filename, spark);
     	List<String> results = evalLoop(query).collect();
-    	System.out.println(results);
+    	//System.out.println(results);
     	return results;
     }
     
@@ -122,15 +122,14 @@ public class SparkSearch {
 //		}
 //		final String finalPredicate = predicate;
 		if (!filesToRead.isEmpty()) {
-			JavaRDD<String> tmp = spark.textFile(index.get(filesToRead.get(0))).filter(s -> evaluate(s, parts[0]));
-			System.out.println(tmp.collect().toString());
-					JavaRDD<String> results = tmp.flatMap(s -> InvertedIndexParser.parse(s).iterator());
-			System.out.println("1Results are: " + results.collect().toString());
+			JavaRDD<String> results = spark.textFile(index.get(filesToRead.get(0))).filter(s -> evaluate(s, parts[0])).flatMap(s -> InvertedIndexParser.parse(s).iterator());
+			//System.out.println(tmp.collect().toString());
+			//System.out.println("1Results are: " + results.collect().toString());
 			for (int j = 1; j < parts.length; j++) {
 				final String partj = parts[j];
 				results = results.union(spark.textFile(index.get(filesToRead.get(j))).filter(s -> evaluate(s, partj)).flatMap(s -> InvertedIndexParser.parse(s).iterator()));
 			}
-			System.out.println("2Results are: " + results.collect().toString());
+			//System.out.println("2Results are: " + results.collect().toString());
 			return results;
 		}
 		else {
@@ -154,9 +153,9 @@ public class SparkSearch {
 		//if(tmp) System.out.println(engine.get("s").toString());
 //		return tmp;
 		if(term.length() > 4 && term.substring(0, 4).equals("not(")) {
-			return !line.equals(term.trim().toLowerCase());
+			return !line.split(" -> ")[0].equals(term.trim().toLowerCase());
 		}
-		return line.equals(term.trim().toLowerCase());
+		return line.split(" -> ")[0].equals(term.trim().toLowerCase());
 	}
 
 }
