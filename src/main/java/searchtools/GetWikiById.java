@@ -18,7 +18,7 @@ def get_wiki_file(wiki_id):
             wiki_file, start, stop = l.split(",")
             start = int(start)
             stop = int(stop)
-            
+
             if wiki_id >= start and wiki_id <= stop:
                 return wiki_file
 wiki_file = get_wiki_file(wiki_id)
@@ -34,7 +34,10 @@ with open("/class/cs132/wiki_csv/" + wiki_file) as f:
  */
 
 public class GetWikiById {
-	
+
+	public static final String WIKIFOLDER = "C:\\Users\\Cameron\\Desktop\\CS132a\\wiki\\";
+	public static final String WIKI_RANGES = "C:\\Users\\Cameron\\Desktop\\CS132a\\wiki_ranges.csv";
+
 	//Cluster address: "/class/cs132/wiki_csv/"
 	//Local address: "C:\\Users\\Cameron\\Desktop\\CS132a\\wiki\\"
 	public static List<String[]> getDocuments(List<String> ids) {
@@ -45,7 +48,7 @@ public class GetWikiById {
 				int wiki_id = Integer.parseInt(ids.get(id));
 				String wiki_file = getWikiFile(wiki_id);
 				try {
-					BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\Cameron\\Desktop\\CS132a\\wiki\\" + wiki_file));
+					BufferedReader br = new BufferedReader(new FileReader(WIKIFOLDER + wiki_file));
 					String l = br.readLine();
 			        while (l != null) {
 			        	String[] fields = l.split(",");
@@ -58,13 +61,13 @@ public class GetWikiById {
 			        			snippet += tokenizer.nextToken() + " ";
 			        			count++;
 			        		}
-			        		
-			        		
+
+
 			        		fields[3] = snippet.substring(0, snippet.length()-1) + "...";
 			        		documents.add(fields);
 			        		break;
 			        	}
-			        	
+
 			        	l = br.readLine();
 			        }
 			        br.close();
@@ -73,14 +76,14 @@ public class GetWikiById {
 				}
 			}
 		}
-		
+
 		return documents;
 	}
-	
+
 	//cluster address: "/class/cs132/wiki_ranges.csv"
 	//local address: "C:\\Users\\Cameron\\Desktop\\CS132a\\wiki_ranges.csv"
 	public static String getWikiFile(int wiki_id) {
-		File f = new File("C:\\Users\\Cameron\\Desktop\\CS132a\\wiki_ranges.csv");
+		File f = new File(WIKI_RANGES);
 		try {
 			@SuppressWarnings("resource")
 			BufferedReader br = new BufferedReader(new FileReader(f));
@@ -90,7 +93,7 @@ public class GetWikiById {
 	        	String wiki_file = fields[0];
 	        	int start = Integer.parseInt(fields[1]);
 	        	int stop = Integer.parseInt(fields[2]);
-	        	
+
 	        	if (wiki_id >= start && wiki_id <= stop) {
 	        		return wiki_file;
 	        	}
