@@ -47,8 +47,8 @@ public class Driver {
 //        	List<String> results = SparkSearch.makeQuery(query, "/home/cs132g7/index", spark);
         	List<String> results = SparkSearch.makeQuery(query, "C:\\Users\\Cameron\\Desktop\\CS132a\\index", spark);
         	
-        	List<String> idList = InvertedIndexParser.parse(results);
-        	List<String[]> documents = GetWikiById.getDocuments(idList);
+        	//List<String> idList = InvertedIndexParser.parse(results);
+        	List<String[]> documents = GetWikiById.getDocuments(results);
 //        	List<String[]> documents = SampleWikiPages.getSampleDocs();
         	
         	Map<String, Object> model = new HashMap<>();
