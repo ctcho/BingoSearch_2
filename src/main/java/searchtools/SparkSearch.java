@@ -122,12 +122,15 @@ public class SparkSearch {
 //		}
 //		final String finalPredicate = predicate;
 		if (!filesToRead.isEmpty()) {
-			JavaRDD<String> results = spark.textFile(index.get(filesToRead.get(0))).filter(s -> evaluate(s, parts[0])).flatMap(s -> InvertedIndexParser.parse(s).iterator());
+			JavaRDD<String> tmp = spark.textFile(index.get(filesToRead.get(0))).filter(s -> evaluate(s, parts[0]));
+			System.out.println(tmp.collect().toString());
+					JavaRDD<String> results = tmp.flatMap(s -> InvertedIndexParser.parse(s).iterator());
+			System.out.println("1Results are: " + results.collect().toString());
 			for (int j = 1; j < parts.length; j++) {
 				final String partj = parts[j];
 				results = results.union(spark.textFile(index.get(filesToRead.get(j))).filter(s -> evaluate(s, partj)).flatMap(s -> InvertedIndexParser.parse(s).iterator()));
 			}
-			System.out.println("Results are: " + results.collect().toString());
+			System.out.println("2Results are: " + results.collect().toString());
 			return results;
 		}
 		else {
