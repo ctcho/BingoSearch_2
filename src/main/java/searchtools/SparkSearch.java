@@ -1,7 +1,5 @@
 package searchtools;
 
-import org.apache.spark.sql.SparkSession;
-
 import scala.Tuple2;
 
 import org.apache.spark.sql.Dataset;
@@ -21,21 +19,21 @@ import java.util.LinkedList;
 import java.io.File;
 
 public class SparkSearch {
-	private static ScriptEngineManager manager = new ScriptEngineManager();
-    private static ScriptEngine engine = manager.getEngineByName("js");
-    private static SparkSession spark;
+//	private static ScriptEngineManager manager = new ScriptEngineManager();
+//    private static ScriptEngine engine = manager.getEngineByName("js");
+    private static JavaSparkContext spark;
     private static String fileName;
     private static HashMap<String, String> index;
     private static int termNo = 0;
     
-    public static List<String> makeQuery(String query, String filename, SparkSession spark) throws ScriptException {
+    public static List<String> makeQuery(String query, String filename, JavaSparkContext spark) throws ScriptException {
     	setup(filename, spark);
     	List<String> results = evalLoop(query).collect();
     	System.out.println(results);
     	return results;
     }
     
-    private static void setup(String file, SparkSession sparkler) {
+    private static void setup(String file, JavaSparkContext sparkler) {
     	spark = sparkler;
     	fileName = file; //Most likely, the file name will be that of the inverted index folder.
     	index = new HashMap<String, String>();
@@ -126,10 +124,10 @@ public class SparkSearch {
 //		}
 //		final String finalPredicate = predicate;
 		if (!filesToRead.isEmpty()) {
-			JavaRDD<String> results = spark.read().textFile(index.get(filesToRead.get(0))).toJavaRDD().filter(s -> evaluate(s, parts[0])).flatMap(s -> InvertedIndexParser.parse(s).iterator());
+			JavaRDD<String> results = spark.textFile(index.get(filesToRead.get(0))).filter(s -> evaluate(s, parts[0])).flatMap(s -> InvertedIndexParser.parse(s).iterator());
 			for (int j = 1; j < parts.length; j++) {
 				final String partj = parts[j];
-				results = results.union(spark.read().textFile(index.get(filesToRead.get(j))).toJavaRDD().filter(s -> evaluate(s, partj)).flatMap(s -> InvertedIndexParser.parse(s).iterator()));
+				results = results.union(spark.textFile(index.get(filesToRead.get(j))).filter(s -> evaluate(s, partj)).flatMap(s -> InvertedIndexParser.parse(s).iterator()));
 			}
 			return results;
 		}

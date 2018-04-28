@@ -2,6 +2,8 @@ package app;
 
 import static spark.Spark.*;
 
+import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.SparkSession;
 //import org.apache.spark.SparkConf;
 //import org.apache.spark.SparkContext;
@@ -24,13 +26,13 @@ public class Driver {
     public static void main(String[] args) {
 //        get("/hello", (req, res) -> "Hello World");
     	//Remember to set master as something else! http://xcn00.cs-i.brandeis.edu[*]
-    	//SparkConf conf = new SparkConf().setAppName("Spark Search").setMaster("local[*]")
-    	//SparkContext context = new SparkContext(conf);
+    	SparkConf conf = new SparkConf().setAppName("Spark Search").setMaster("local[*]");
+    	JavaSparkContext spark = new JavaSparkContext(conf);
     	//local implementation: SparkSession spark = SparkSession.builder()
     	//.master("local[*]").appName("Spark Search").getOrCreate();
     	
-    	SparkSession spark = SparkSession.builder()
-    			.master("local[*]").appName("Spark Search").getOrCreate();
+//    	JavaSparkContext spark = JavaSparkContext.build()
+//    			.master("local[*]").appName("Spark Search").getOrCreate();
     	
         get("/home", (request, response) -> {
         	Map<String, Object> model = new HashMap<>();
