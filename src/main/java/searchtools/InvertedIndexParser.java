@@ -18,4 +18,14 @@ public class InvertedIndexParser {
     	}
 		return idList;
 	}
+	public static List<String> parse(String line){
+		List<String> idList = new ArrayList<String>();
+		String[] keyValue = line.split(" -> ");
+		String[] indices = keyValue[1].substring(1, keyValue[1].length()-1).split("],");
+		for (String i : indices) {
+			String[] units = i.split("="); //splits docID, indices into docID and [indices]
+			idList.add(units[0].trim());
+		}
+		return idList;
+	}
 }

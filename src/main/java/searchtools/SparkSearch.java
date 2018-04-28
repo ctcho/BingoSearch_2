@@ -1,8 +1,12 @@
 package searchtools;
 
 import org.apache.spark.sql.SparkSession;
+
+import scala.Tuple2;
+
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
+import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 
@@ -82,11 +86,12 @@ public class SparkSearch {
 //		}
 	}
     
+  
+    
     
     private static JavaRDD<String> subevaluate(String term) throws ScriptException {
 //		engine.put("s", s);
 		String[] parts = term.split(" or ");
-		String predicate = "";
 		List<String> filesToRead = new LinkedList<>();
 		if (parts[0].startsWith("(")) parts[0] = parts[0].substring(1, parts[0].length());
 		if (parts[parts.length -1].endsWith(")")) parts[parts.length-1] = parts[parts.length-1].substring(0, parts[parts.length-1].length() - 1);
@@ -121,10 +126,10 @@ public class SparkSearch {
 //		}
 //		final String finalPredicate = predicate;
 		if (!filesToRead.isEmpty()) {
-			JavaRDD<String> results = spark.read().textFile(index.get(filesToRead.get(0))).toJavaRDD().filter(s -> evaluate(s, parts[0]));
+			JavaRDD<String> results = spark.read().textFile(index.get(filesToRead.get(0))).toJavaRDD().filter(s -> evaluate(s, parts[0])).flatMap(s -> InvertedIndexParser.parse(s).iterator());
 			for (int j = 1; j < parts.length; j++) {
 				final String partj = parts[j];
-				results = results.union(spark.read().textFile(index.get(filesToRead.get(j))).toJavaRDD().filter(s -> evaluate(s, partj)));
+				results = results.union(spark.read().textFile(index.get(filesToRead.get(j))).toJavaRDD().filter(s -> evaluate(s, partj)).flatMap(s -> InvertedIndexParser.parse(s).iterator()));
 			}
 			return results;
 		}
@@ -135,7 +140,13 @@ public class SparkSearch {
 //		return Boolean.TRUE.equals(result);
 	}
     
-	public static boolean evaluate(String line, String term) throws ScriptException {
+    
+    public static Tuple2<String,List<String>> mapping(String s){
+    		String[] line = s.split(" -> ");
+    		return new Tuple2<String, List<String>>(line[0].trim(), InvertedIndexParser.parse(s));
+    }
+    
+	public static boolean evaluate(String line, String term){
 //		engine.put("s", line.split(" -> ")[0]);
 //		boolean tmp = Boolean.TRUE.equals(engine.eval(logic));
 //		if(engine.get("s").toString().equals("vanilla")) System.out.println(tmp);
@@ -143,9 +154,9 @@ public class SparkSearch {
 		//if(tmp) System.out.println(engine.get("s").toString());
 //		return tmp;
 		if(term.length() > 4 && term.substring(0, 4).equals("not(")) {
-			return !line.split(" -> ")[0].trim().toLowerCase().equals(term);
+			return !line.equals(term.trim().toLowerCase());
 		}
-		return line.split(" -> ")[0].trim().toLowerCase().equals(term);
+		return line.equals(term.trim().toLowerCase());
 	}
 
 }
